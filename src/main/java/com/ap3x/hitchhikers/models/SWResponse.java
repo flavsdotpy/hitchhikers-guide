@@ -9,6 +9,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SWResponse {
 
+    private Long count;
     private String next;
     private String previous;
     private List<SWPlanet> results;
