@@ -1,12 +1,16 @@
-package com.ap3x.hitchhikers.services;
+package com.ap3x.hitchhikers.service.impl;
 
-import com.ap3x.hitchhikers.models.Planet;
-import com.ap3x.hitchhikers.models.PaginatedResponse;
-import com.ap3x.hitchhikers.models.SWPlanet;
-import com.ap3x.hitchhikers.models.SWResponse;
+import com.ap3x.hitchhikers.model.PaginatedResponse;
+import com.ap3x.hitchhikers.model.Planet;
+import com.ap3x.hitchhikers.model.SWPlanet;
+import com.ap3x.hitchhikers.model.SWResponse;
+import com.ap3x.hitchhikers.service.SWService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -14,12 +18,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.ap3x.hitchhikers.commons.HitchhikersConstants.SWAPI_URL;
+import static com.ap3x.hitchhikers.HitchhikersGuideConstants.SWAPI_URL;
 
 
 
 @Service
-public class SWService {
+public class SWServiceImpl implements SWService {
 
     @Autowired
     private Environment env;

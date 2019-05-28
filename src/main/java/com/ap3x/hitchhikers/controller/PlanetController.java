@@ -1,10 +1,11 @@
-package com.ap3x.hitchhikers.controllers;
+package com.ap3x.hitchhikers.controller;
 
-import com.ap3x.hitchhikers.models.PaginatedResponse;
-import com.ap3x.hitchhikers.models.Planet;
-import com.ap3x.hitchhikers.models.SWPlanet;
-import com.ap3x.hitchhikers.services.PlanetService;
-import com.ap3x.hitchhikers.services.SWService;
+import com.ap3x.hitchhikers.doc.PlanetControllerSwaggerConfig;
+import com.ap3x.hitchhikers.dto.PlanetDTO;
+import com.ap3x.hitchhikers.model.PaginatedResponse;
+import com.ap3x.hitchhikers.model.Planet;
+import com.ap3x.hitchhikers.service.PlanetService;
+import com.ap3x.hitchhikers.service.SWService;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,11 +13,10 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/v1/planets")
-public class PlanetController {
+public class PlanetController implements PlanetControllerSwaggerConfig {
 
     @Autowired
     private SWService swService;
-
     @Autowired
     private PlanetService planetService;
 
@@ -41,17 +41,14 @@ public class PlanetController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Planet create(@RequestBody Planet planet) {
-        SWPlanet swPlanet = swService.getByName(planet.getName());
-        Integer numberOfFilmsApparitions = swPlanet == null ? 0 : swPlanet.getFilms().size();
-        planet.setNumberOfFilmsApparitions(numberOfFilmsApparitions);
-        return planetService.create(planet);
+    public Planet create(@RequestBody PlanetDTO planetDTO) {
+        return planetService.create(planetDTO);
     }
 
     @PutMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public Planet update(@PathVariable("id") Integer id, @RequestBody Planet planet) throws NotFoundException {
-        return planetService.update(id, planet);
+    public Planet update(@PathVariable("id") Integer id, @RequestBody PlanetDTO planetDTO) throws NotFoundException {
+        return planetService.update(id, planetDTO);
     }
 
     @DeleteMapping(value = "/{id}")
@@ -59,7 +56,6 @@ public class PlanetController {
     public void delete(@PathVariable("id") Integer id) throws NotFoundException {
         planetService.delete(id);
     }
-
 
     private PaginatedResponse<Planet> listFromSW(Integer page) {
         return swService.listAll(page);

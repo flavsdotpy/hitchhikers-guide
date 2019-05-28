@@ -1,6 +1,6 @@
-package com.ap3x.hitchhikers.controllers;
+package com.ap3x.hitchhikers.controller;
 
-import com.ap3x.hitchhikers.models.ErrorBody;
+import com.ap3x.hitchhikers.model.HitchhikersGuideError;
 import javassist.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,18 +15,19 @@ public class ExceptionController {
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorBody handleGenericException(Exception ex){
-        return new ErrorBody(LocalDateTime.now(), ex.getMessage());
+    public HitchhikersGuideError handleGenericException(Exception ex){
+        return new HitchhikersGuideError(LocalDateTime.now(), ex.getMessage());
     }
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorBody handleNotFoundException(NotFoundException ex){
-        return new ErrorBody(LocalDateTime.now(), ex.getMessage());
+    public HitchhikersGuideError handleNotFoundException(NotFoundException ex){
+        return new HitchhikersGuideError(LocalDateTime.now(), ex.getMessage());
     }
+
     @ExceptionHandler(EntityExistsException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorBody handleEntityExistsException(EntityExistsException ex){
-        return new ErrorBody(LocalDateTime.now(), ex.getMessage());
+    public HitchhikersGuideError handleEntityExistsException(EntityExistsException ex){
+        return new HitchhikersGuideError(LocalDateTime.now(), ex.getMessage());
     }
 }

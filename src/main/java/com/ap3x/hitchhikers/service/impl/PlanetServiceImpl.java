@@ -1,10 +1,13 @@
-package com.ap3x.hitchhikers.services;
+package com.ap3x.hitchhikers.service.impl;
 
-import com.ap3x.hitchhikers.models.Planet;
-import com.ap3x.hitchhikers.models.PaginatedResponse;
-import com.ap3x.hitchhikers.repositores.PlanetRepository;
+import com.ap3x.hitchhikers.dto.PlanetDTO;
+import com.ap3x.hitchhikers.model.PaginatedResponse;
+import com.ap3x.hitchhikers.model.Planet;
+import com.ap3x.hitchhikers.model.SWPlanet;
+import com.ap3x.hitchhikers.repository.PlanetRepository;
+import com.ap3x.hitchhikers.service.PlanetService;
+import com.ap3x.hitchhikers.service.SWService;
 import javassist.NotFoundException;
-import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -17,7 +20,7 @@ import javax.persistence.EntityExistsException;
 import java.util.Optional;
 
 @Service
-public class PlanetService {
+public class PlanetServiceImpl implements PlanetService {
 
     @Autowired
     private Environment env;
@@ -25,9 +28,12 @@ public class PlanetService {
     @Autowired
     private PlanetRepository repository;
 
+    @Autowired
+    private SWService swService;
+
     public PaginatedResponse<Planet> listAll(Integer page, String name){
         if (name != null)
-            return listByName(page, name);
+            return getByName(page, name);
         return listAll(page);
     }
 
@@ -38,7 +44,12 @@ public class PlanetService {
         return planet.get();
     }
 
-    public Planet create(Planet planet){
+    public Planet create(PlanetDTO planetDTO){
+        SWPlanet swPlanet = swService.getByName(planetDTO.getName());
+        Integer numberOfFilmsApparitions = swPlanet == null ? 0 : swPlanet.getFilms().size();
+
+        Planet planet = new Planet(planetDTO);
+        planet.setNumberOfFilmsApparitions(numberOfFilmsApparitions);
         try {
             return repository.save(planet);
         } catch (DataIntegrityViolationException ex) {
@@ -46,10 +57,12 @@ public class PlanetService {
         }
     }
 
-    public Planet update(Integer id, Planet planet) throws NotFoundException {
+    public Planet update(Integer id, PlanetDTO planetDTO) throws NotFoundException {
         Optional<Planet> savedPlanet = repository.findById(id);
         if (!savedPlanet.isPresent())
             throw new NotFoundException(String.format("Planet with id %d not found", id));
+        Planet planet = new Planet(planetDTO);
+        planet.setId(savedPlanet.get().getId());
         planet.setNumberOfFilmsApparitions(savedPlanet.get().getNumberOfFilmsApparitions());
         return repository.save(planet);
     }
@@ -68,7 +81,7 @@ public class PlanetService {
         return buildResponseBody(page, planets);
     }
 
-    private PaginatedResponse<Planet> listByName(Integer page, String name) {
+    private PaginatedResponse<Planet> getByName(Integer page, String name) {
         Pageable pageConfig = PageRequest.of(page - 1, 10);
         Page<Planet> planets = repository.findByNameIgnoreCaseContaining(name, pageConfig);
 
