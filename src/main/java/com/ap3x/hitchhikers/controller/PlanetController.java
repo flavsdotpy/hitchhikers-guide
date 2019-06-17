@@ -23,9 +23,9 @@ public class PlanetController implements PlanetControllerSwaggerConfig {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public PaginatedResponse<Planet> list(
-            @RequestParam(defaultValue = "false") Boolean sw,
-            @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(required = false) String name) {
+            @RequestParam(defaultValue = "false") final Boolean sw,
+            @RequestParam(defaultValue = "1") final Integer page,
+            @RequestParam(required = false) final String name) {
         if (sw)
             return listFromSW(page);
         else {
@@ -35,33 +35,35 @@ public class PlanetController implements PlanetControllerSwaggerConfig {
 
     @GetMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Planet getById(@PathVariable("id") Integer id) throws NotFoundException {
+    public Planet getById(@PathVariable("id") final Integer id) throws NotFoundException {
         return planetService.getById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Planet create(@RequestBody PlanetDTO planetDTO) {
+    public Planet create(@RequestBody final PlanetDTO planetDTO) {
         return planetService.create(planetDTO);
     }
 
     @PutMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public Planet update(@PathVariable("id") Integer id, @RequestBody PlanetDTO planetDTO) throws NotFoundException {
+    public Planet update(
+            @PathVariable("id") final Integer id,
+            @RequestBody final PlanetDTO planetDTO) throws NotFoundException {
         return planetService.update(id, planetDTO);
     }
 
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable("id") Integer id) throws NotFoundException {
+    public void delete(@PathVariable("id") final Integer id) throws NotFoundException {
         planetService.delete(id);
     }
 
-    private PaginatedResponse<Planet> listFromSW(Integer page) {
+    private PaginatedResponse<Planet> listFromSW(final Integer page) {
         return swService.listAll(page);
     }
 
-    private PaginatedResponse<Planet> listFromBase(Integer page, String name) {
+    private PaginatedResponse<Planet> listFromBase(final Integer page, final String name) {
         return planetService.listAll(page, name);
     }
 

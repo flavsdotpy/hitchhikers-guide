@@ -19,6 +19,13 @@ import javax.validation.constraints.NotNull;
 @Table(name = "planets")
 public class Planet {
 
+    public Planet(@NotNull String name, @NotNull String climate, @NotNull String terrain, Integer numberOfFilmsApparitions) {
+        this.name = name;
+        this.climate = climate;
+        this.terrain = terrain;
+        this.numberOfFilmsApparitions = numberOfFilmsApparitions;
+    }
+
     public Planet(PlanetDTO dto) {
         this.name = dto.getName();
         this.climate = dto.getClimate();

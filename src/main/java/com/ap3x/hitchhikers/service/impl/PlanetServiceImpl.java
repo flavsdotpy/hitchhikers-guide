@@ -31,24 +31,25 @@ public class PlanetServiceImpl implements PlanetService {
     @Autowired
     private SWService swService;
 
-    public PaginatedResponse<Planet> listAll(Integer page, String name){
+    public PaginatedResponse<Planet> listAll(final Integer page, final String name){
         if (name != null)
             return getByName(page, name);
         return listAll(page);
     }
 
-    public Planet getById(Integer id) throws NotFoundException {
-        Optional<Planet> planet = repository.findById(id);
+    public Planet getById(final Integer id) throws NotFoundException {
+        final Optional<Planet> planet = repository.findById(id);
         if (!planet.isPresent())
             throw new NotFoundException(String.format("Planet with id %d not found", id));
         return planet.get();
     }
 
-    public Planet create(PlanetDTO planetDTO){
-        SWPlanet swPlanet = swService.getByName(planetDTO.getName());
-        Integer numberOfFilmsApparitions = swPlanet == null ? 0 : swPlanet.getFilms().size();
+    public Planet create(final PlanetDTO planetDTO){
+        final SWPlanet swPlanet = swService.getByName(planetDTO.getName());
+        final Integer numberOfFilmsApparitions = swPlanet == null || swPlanet.getFilms() == null ? 0 :
+                                                    swPlanet.getFilms().size();
 
-        Planet planet = new Planet(planetDTO);
+        final Planet planet = new Planet(planetDTO);
         planet.setNumberOfFilmsApparitions(numberOfFilmsApparitions);
         try {
             return repository.save(planet);
@@ -57,46 +58,48 @@ public class PlanetServiceImpl implements PlanetService {
         }
     }
 
-    public Planet update(Integer id, PlanetDTO planetDTO) throws NotFoundException {
-        Optional<Planet> savedPlanet = repository.findById(id);
+    public Planet update(final Integer id, final PlanetDTO planetDTO) throws NotFoundException {
+        final Optional<Planet> savedPlanet = repository.findById(id);
         if (!savedPlanet.isPresent())
             throw new NotFoundException(String.format("Planet with id %d not found", id));
-        Planet planet = new Planet(planetDTO);
+        final Planet planet = new Planet(planetDTO);
         planet.setId(savedPlanet.get().getId());
         planet.setNumberOfFilmsApparitions(savedPlanet.get().getNumberOfFilmsApparitions());
         return repository.save(planet);
     }
 
-    public void delete(Integer id) throws NotFoundException {
-        Optional<Planet> planet = repository.findById(id);
+    public void delete(final Integer id) throws NotFoundException {
+        final Optional<Planet> planet = repository.findById(id);
         if (!planet.isPresent())
             throw new NotFoundException(String.format("Planet with id %d not found", id));
         repository.deleteById(id);
     }
 
-    private PaginatedResponse<Planet> listAll(Integer page) {
-        Pageable pageConfig = PageRequest.of(page - 1, 10);
-        Page<Planet> planets = repository.findAll(pageConfig);
+    private PaginatedResponse<Planet> listAll(final Integer page) {
+        final Pageable pageConfig = PageRequest.of(page - 1, 10);
+        final Page<Planet> planets = repository.findAll(pageConfig);
 
         return buildResponseBody(page, planets);
     }
 
-    private PaginatedResponse<Planet> getByName(Integer page, String name) {
-        Pageable pageConfig = PageRequest.of(page - 1, 10);
-        Page<Planet> planets = repository.findByNameIgnoreCaseContaining(name, pageConfig);
+    private PaginatedResponse<Planet> getByName(final Integer page, final String name) {
+        final Pageable pageConfig = PageRequest.of(page - 1, 10);
+        final Page<Planet> planets = repository.findByNameIgnoreCaseContaining(name, pageConfig);
 
         return buildResponseBody(page, planets);
     }
 
-    private PaginatedResponse<Planet> buildResponseBody(Integer page, Page<Planet> planets) {
-        PaginatedResponse<Planet> body = new PaginatedResponse<>();
+    private PaginatedResponse<Planet> buildResponseBody(final Integer page, final Page<Planet> planets) {
+        final PaginatedResponse<Planet> body = new PaginatedResponse<>();
         body.setCount(planets.getTotalElements());
         if (page != 1)
             body.setPreviousPage(
-                    "http://" + env.getProperty("server.host") + ":" + env.getProperty("server.port") + "/api/v1/planets?page=" + (page - 1));
+                    String.format("http://%s:%s/api/v1/planets?page=%d",
+                            env.getProperty("server.host"), env.getProperty("server.port"), page - 1));
         if (planets.hasNext())
             body.setNextPage(
-                    "http://" + env.getProperty("server.host") + ":" + env.getProperty("server.port") + "/api/v1/planets?page=" + (page + 1));
+                    String.format("http://%s:%s/api/v1/planets?page=%d",
+                            env.getProperty("server.host"), env.getProperty("server.port"), page + 1));
         body.setData(planets.getContent());
         return body;
     }

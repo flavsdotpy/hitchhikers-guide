@@ -17,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.ap3x.hitchhikers.HitchhikersGuideConstants.SWAPI_URL;
 
@@ -28,45 +29,48 @@ public class SWServiceImpl implements SWService {
     @Autowired
     private Environment env;
 
+    @Autowired
+    private RestTemplate restTemplate;
+
     public PaginatedResponse<Planet> listAll(Integer page){
-        String url = SWAPI_URL + "?page=" + page;
+        final String url = SWAPI_URL + "?page=" + page;
 
-        RestTemplate restTemplate = new RestTemplate();
-
-        SWResponse response = restTemplate
+        final SWResponse response = restTemplate
                                 .exchange(url, HttpMethod.GET, getHeaders(), SWResponse.class)
                                 .getBody();
 
-        PaginatedResponse<Planet> paginatedResponse = new PaginatedResponse<>();
+        final PaginatedResponse<Planet> paginatedResponse = new PaginatedResponse<>();
         if (response != null) {
             paginatedResponse.setCount(response.getCount());
-            if (response.getNext() != null)
+            if (response.getNext() != null) {
                 paginatedResponse.setNextPage(
-                        "http://" + env.getProperty("server.host") + ":" + env.getProperty("server.port") + "/api/v1/planets?sw=true&page=" + (page + 1));
+                        String.format("http://%s:%s/api/v1/planets?sw=true&page=%d",
+                                env.getProperty("server.host"), env.getProperty("server.port"), page + 1));
+            }
 
-            if (response.getPrevious() != null)
+            if (response.getPrevious() != null) {
                 paginatedResponse.setPreviousPage(
-                        "http://" + env.getProperty("server.host") + ":" + env.getProperty("server.port") + "/api/v1/planets?sw=true&page=" + (page - 1));
+                        String.format("http://%s:%s/api/v1/planets?sw=true&page=%d",
+                                env.getProperty("server.host"), env.getProperty("server.port"), page - 1));
+            }
 
-            List<Planet> planets = new ArrayList<>();
-            for (SWPlanet swPlanet : response.getResults()) {
+            final List<Planet> planets = response.getResults().stream().map(swPlanet -> {
                 Planet planet = new Planet();
                 planet.setName(swPlanet.getName());
                 planet.setClimate(swPlanet.getClimate());
                 planet.setTerrain(swPlanet.getTerrain());
                 planet.setNumberOfFilmsApparitions(swPlanet.getFilms().size());
-                planets.add(planet);
-            }
+                return planet;
+            }).collect(Collectors.toList());
             paginatedResponse.setData(planets);
         }
         return paginatedResponse;
     }
 
     public SWPlanet getByName(String name) {
-        String url = SWAPI_URL + "?search=" + name;
-        RestTemplate restTemplate = new RestTemplate();
+        final String url = SWAPI_URL + "?search=" + name;
 
-        SWResponse response = restTemplate
+        final SWResponse response = restTemplate
                 .exchange(url, HttpMethod.GET, getHeaders(), SWResponse.class)
                 .getBody();
 
@@ -77,7 +81,7 @@ public class SWServiceImpl implements SWService {
     }
 
     private HttpEntity<String> getHeaders(){
-        HttpHeaders headers = new HttpHeaders();
+        final HttpHeaders headers = new HttpHeaders();
 
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         headers.setContentType(MediaType.APPLICATION_JSON);

@@ -13,15 +13,13 @@ Clone this repository.
 
 `git clone https://github.com/ap3xx/hitchhikers-guide.git`
 
-Execute the following commands (in the root of the project):
-
-`mvn package`
+Execute the following command (in the root of the project):
 
 `mvn spring-boot:run`
 
 ## How to run the automated tests
 
-`TBD`
+`mvn test`
 
 ## API Documentation
 
@@ -31,10 +29,25 @@ The API documentation can be found in the following link:
 
 _Obs: assuming you are running it at localhost_
 
-## What would I do if I had more time?
+## Sample Data
 
-* I would definitely code automated tests.
-* I would prepare a sample environment already populated with data.
+The project will be already start with a sample populated database, as seen in the following image:
+
+![sample](./doc/sample.png)
+
+With this sample data you can already test:
+
+* Get by id
+* Get by name
+* Insert
+* Update
+* Delete
+
+## Built with
+
+* [**Spring Boot**](https://spring.io/projects/spring-boot)
+* [**Lombok**](https://projectlombok.org/)
+* [**Swagger**](https://swagger.io/)
 
 ## Author
 

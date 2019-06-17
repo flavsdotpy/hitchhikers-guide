@@ -15,19 +15,19 @@ public class ExceptionController {
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public HitchhikersGuideError handleGenericException(Exception ex){
+    public HitchhikersGuideError handleGenericException(final Exception ex){
         return new HitchhikersGuideError(LocalDateTime.now(), ex.getMessage());
     }
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public HitchhikersGuideError handleNotFoundException(NotFoundException ex){
+    public HitchhikersGuideError handleNotFoundException(final NotFoundException ex){
         return new HitchhikersGuideError(LocalDateTime.now(), ex.getMessage());
     }
 
     @ExceptionHandler(EntityExistsException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public HitchhikersGuideError handleEntityExistsException(EntityExistsException ex){
+    public HitchhikersGuideError handleEntityExistsException(final EntityExistsException ex){
         return new HitchhikersGuideError(LocalDateTime.now(), ex.getMessage());
     }
 }
